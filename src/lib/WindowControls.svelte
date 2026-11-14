@@ -1,16 +1,24 @@
 <script lang="ts">
-	// Desktop only: the window has no title bar (src-tauri/tauri.conf.json, lib.rs),
-	// so it gets vertical close / minimise / zoom buttons and an invisible strip
-	// along the top for dragging.
+	// Desktop only: the window has no title bar and no buttons (src-tauri/tauri.conf.json, lib.rs),
+	// only an invisible strip along the top for dragging. ⌘W closes, ⌘M minimises.
+	// A window ReDesk pinned to its place (⌃⌥P) has PIN written down its left side.
 	import { getCurrentWindow } from '@tauri-apps/api/window';
+	import { getCurrentWebview } from '@tauri-apps/api/webview';
 
 	const win = getCurrentWindow();
 
-	// the buttons show only while this window is the focused one of the active app;
+	// whether this window is the focused one of the active app;
 	// the page hears of it too (html.blurred: the window's rim, app.css)
 	let focused = $state(true);
 	$effect(() => {
 		document.documentElement.classList.toggle('blurred', !focused);
+	});
+	let pinned = $state(false);
+	$effect(() => {
+		const off = getCurrentWebview().listen<boolean>('pinned', ({ payload }) => (pinned = payload));
+		return () => {
+			off.then((stop) => stop());
+		};
 	});
 	$effect(() => {
 		win.isFocused().then((f) => (focused = f));
@@ -23,17 +31,9 @@
 
 <div class="drag-strip" data-tauri-drag-region></div>
 
-<div class="window-controls" class:away={!focused}>
-	<button class="light close" onclick={() => win.close()} title="Close" aria-label="Close">
-		<svg viewBox="0 0 8 8"><path d="M2 2l4 4M6 2L2 6" /></svg>
-	</button>
-	<button class="light minimize" onclick={() => win.minimize()} title="Minimize" aria-label="Minimize">
-		<svg viewBox="0 0 8 8"><path d="M1.5 4h5" /></svg>
-	</button>
-	<button class="light zoom" onclick={() => win.toggleMaximize()} title="Zoom" aria-label="Zoom">
-		<svg viewBox="0 0 8 8"><path d="M4 1.5v5M1.5 4h5" /></svg>
-	</button>
-</div>
+{#if pinned}
+	<div class="pin" aria-label="Pinned">PIN</div>
+{/if}
 
 <style>
 	.drag-strip {
@@ -45,54 +45,19 @@
 		z-index: 90;
 	}
 
-	.window-controls {
+	/* where the window's buttons were: PIN, down the left side, as the apps' spaced capitals */
+	.pin {
 		position: fixed;
 		top: 14px;
-		left: 14px;
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
+		left: 10px;
 		z-index: 95;
-		transition: opacity 150ms ease;
-	}
-
-	.window-controls.away {
-		opacity: 0;
-		visibility: hidden;
-		transition: opacity 150ms ease, visibility 0s 150ms;
-	}
-
-	.light {
-		width: 12px;
-		height: 12px;
-		border-radius: 50%;
-		border: none;
-		padding: 0;
-		display: grid;
-		place-items: center;
-		cursor: default;
-		/* grey at rest; the macOS colours appear when hovering the group */
-		background: var(--light-off, #c9c9c9);
-		box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.12);
-		transition: background 150ms ease;
-	}
-
-	.window-controls:hover .close { background: #ff5f57; }
-	.window-controls:hover .minimize { background: #febc2e; }
-	.window-controls:hover .zoom { background: #28c840; }
-
-	/* like macOS: the symbols show when hovering the group */
-	.light svg {
-		width: 8px;
-		height: 8px;
-		stroke: rgba(0, 0, 0, 0.55);
-		stroke-width: 1.2;
-		stroke-linecap: round;
-		fill: none;
-		opacity: 0;
-	}
-
-	.window-controls:hover .light svg {
-		opacity: 1;
+		writing-mode: vertical-rl;
+		font-family: 'Noto Sans JP', sans-serif;
+		font-size: 11px;
+		letter-spacing: 0.4em;
+		color: var(--text, currentColor);
+		opacity: 0.45;
+		pointer-events: none;
+		user-select: none;
 	}
 </style>

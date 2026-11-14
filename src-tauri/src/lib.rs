@@ -752,6 +752,8 @@ fn listen_for_desk_corners(app: &tauri::AppHandle) {
                 return;
             }
             let corners = number(c"corners") as u32;
+            // pinned by ReDesk (⌃⌥P): the page writes PIN down its left side
+            let pinned = number(c"pinned") == 1.0;
             let Some(app) = DESK_APP.get() else { return };
             // which of the app's windows it is: the one with that frame
             let near = |a: f64, b: f64| (a - b).abs() < 24.0;
@@ -762,6 +764,7 @@ fn listen_for_desk_corners(app: &tauri::AppHandle) {
                     && near(size.width as f64 / scale, number(c"w")) && near(size.height as f64 / scale, number(c"h"))
                 {
                     set_corners(&window, corners);
+                    let _ = tauri::Emitter::emit_to(app, window.label(), "pinned", pinned);
                 }
             }
         }
