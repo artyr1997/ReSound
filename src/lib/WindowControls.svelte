@@ -32,9 +32,10 @@
 <div class="drag-strip" data-tauri-drag-region></div>
 
 <!-- in the corner where macOS has its buttons: a diamond while this window is the focused one (as ReDesk's
-     marks for "this one"), and P under it while ReDesk has it pinned (⌃⌥P) -->
+     marks for "this one"), and P while ReDesk has it pinned (⌃⌥P),
+     under the diamond, or in its place when the window isn't the focused one -->
 <div class="marks" aria-hidden="true">
-	<span class="diamond" class:on={focused}></span>
+	{#if focused}<span class="diamond"></span>{/if}
 	{#if pinned}<span class="pin">P</span>{/if}
 </div>
 
@@ -70,11 +71,6 @@
 		margin: 2px 0;
 		background: var(--text, currentColor);
 		transform: rotate(45deg);
-		opacity: 0;
-		transition: opacity 150ms ease;
-	}
-
-	.diamond.on {
 		opacity: 0.9;
 	}
 
