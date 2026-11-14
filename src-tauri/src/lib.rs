@@ -752,7 +752,7 @@ fn listen_for_desk_corners(app: &tauri::AppHandle) {
                 return;
             }
             let corners = number(c"corners") as u32;
-            // pinned by ReDesk (⌃⌥P): the page writes PIN down its left side
+            // pinned by ReDesk (⌃⌥P): the page writes P in its top left corner
             let pinned = number(c"pinned") == 1.0;
             let Some(app) = DESK_APP.get() else { return };
             // which of the app's windows it is: the one with that frame
