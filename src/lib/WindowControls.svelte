@@ -57,7 +57,7 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 7px;
+		gap: 6px;
 		pointer-events: none;
 		user-select: none;
 		transition: opacity 150ms ease;
@@ -75,14 +75,15 @@
 	}
 
 	.diamond.on {
-		opacity: 0.55;
+		opacity: 0.9;
 	}
 
 	.pin {
 		font-family: 'Noto Sans JP', sans-serif;
-		font-size: 11px;
+		font-size: 15px;
+		font-weight: 500;
 		line-height: 1;
 		color: var(--text, currentColor);
-		opacity: 0.45;
+		opacity: 0.9;
 	}
 </style>
